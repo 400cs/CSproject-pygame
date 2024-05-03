@@ -102,10 +102,10 @@ while True:
         if random.randint(1, 300 * (1 + len(lasers) * 2)) == 1:
             lasers.append([random.randint(0, screen.get_width()), random.randint(90, 150), 20])
     for i, laser in sorted(enumerate(lasers), reverse=True):
-        left = laser[0] - laser[1] // 2
+        left = laser[0] - laser[1] 
         if left < 0:
             left = 0
-        right = laser[0] + laser[1] // 2
+        right = laser[0] + laser[1] 
         if right > screen.get_width():
             right = screen.get_width()
         pygame.draw.line(screen, (190, 40, 100), (left, 0), (left, screen.get_height()))
@@ -123,20 +123,17 @@ while True:
                 if player_pos[0] > laser[0]:
                     ball_speedx += 4
                     ball_speedy += 4
-                    # player_velocity[0] += 4
                 else:
                     ball_speedy -= 4
                     ball_speedx -= 4
-                    # player_velocity[0] -= 4
                 for i in range(30):
-                    # sparks.append([player_pos, random.randint(0, 359), random.randint(7, 10) / 10 * 3, 9 * random.randint(5, 10) / 10, (170, 170, 170)])
                     a = random.randint(0, 359)
                     s = random.randint(20, 50) / 10
                     x_p = math.cos(math.radians(a)) * s
                     y_p = math.sin(math.radians(a)) * s
                     particles.append(e.particle(player_pos, 'p', [x_p, y_p], 0.1, random.randint(0, 20) / 10, (170, 170, 170)))
                     screen_shake = 8
-            for i in range(300):
+            for i in range(500):
                 if random.randint(1, 2) == 1:
                     pos_x = left
                     vel = [4 + random.randint(0, 20) / 10, random.randint(0, 10) / 10 - 3]
@@ -145,6 +142,7 @@ while True:
                     vel = [-(4 + random.randint(0, 20) / 10), random.randint(0, 10) / 10 - 3]
                 pos_y = random.randint(0, screen.get_height() + 30) + scroll - 30
                 particles.append(e.particle([pos_x, pos_y], 'p', vel, 0.2, random.randint(0, 20) / 10, (160, 40, 80)))
+    
 
 
 
