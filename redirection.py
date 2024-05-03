@@ -1,6 +1,7 @@
 import pygame, sys, random
 import data.entities as e
 import data.collision as collision
+import math
 
 pygame.init()
 
@@ -104,7 +105,8 @@ while True:
         # line needs to have a limit
         # length from last_point to mx, my
         #((mx - last_point[0])**2 + (my - last_point[1])**2)
-        line_length = np.sqrt(((mx - last_point[0])**2 + (my - last_point[1])**2))
+        line_length = math.sqrt(((mx - last_point[0])**2 + (my - last_point[1])**2))
+        print(line_length)
         
         pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
 
