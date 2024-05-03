@@ -173,12 +173,12 @@ while True:
         #((mx - last_point[0])**2 + (my - last_point[1])**2)
         line_length = math.sqrt(((mx - last_point[0])**2 + (my - last_point[1])**2))
         MAX_LINE_LENGTH = 600
-        if line_length > MAX_LINE_LENGTH:
-            max_point = clamp_line(last_point, [mx, my], MAX_LINE_LENGTH)
-            print(max_point)
-            pygame.draw.line(screen, (90, 140, 170), last_point, max_point)
-        else:
-            pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
+        # if line_length > MAX_LINE_LENGTH:
+        #     max_point = clamp_line(last_point, [mx, my], MAX_LINE_LENGTH)
+        #     print(max_point)
+        #     pygame.draw.line(screen, (90, 140, 170), last_point, max_point)
+        # else:
+        pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
 
     screen.blit(text_surface, (10, 10))
 
