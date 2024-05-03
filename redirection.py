@@ -19,11 +19,12 @@ e.load_particle_images('data/images/particles')
 e.set_global_colorkey((0, 0, 0))
 
 # sounds
-bounce_s = pygame.mixer.Sound('data/jump.wav')
+bounce_s = pygame.mixer.Sound('data/sfx/jump.wav')
+laser_charge_s = pygame.mixer.Sound('data/sfx/laser_charge.wav')
+laser_explode_s = pygame.mixer.Sound('data/sfx/laser_explode.wav')
 bounce_s.set_volume(0.7)
+laser_charge_s.set_volume(0.05)
 
-particles = []
-circle_effects = []
 player_pos = [screen.get_width() // 2, screen.get_height() // 2]
 player_color = (90, 210, 255)
 bg_color = (13, 20, 33)
@@ -40,6 +41,11 @@ end_game = False
 buttondown = False
 last_speed_increase_time = start_time
 player_radius = 10
+
+particles = []
+circle_effects = []
+lasers = []
+line_effects = []
 
 while True:
     mx, my = pygame.mouse.get_pos()
@@ -91,7 +97,56 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP:
             current_line = (last_point, [mx, my])
             buttondown = not buttondown
-        
+    
+    if game_score > 10:
+        if random.randint(1, 300 * (1 + len(lasers) * 2)) == 1:
+            lasers.append([random.randint(0, screen.get_width()), random.randint(90, 150), 20])
+    for i, laser in sorted(enumerate(lasers), reverse=True):
+        left = laser[0] - laser[1] // 2
+        if left < 0:
+            left = 0
+        right = laser[0] + laser[1] // 2
+        if right > screen.get_width():
+            right = screen.get_width()
+        pygame.draw.line(screen, (190, 40, 100), (left, 0), (left, screen.get_height()))
+        pygame.draw.line(screen, (190, 40, 100), (right, 0), (right, screen.get_height()))
+        center_line = [[laser[0], 0], [laser[0], screen.get_height()]]
+        if laser[2] % 12 == 0:
+            laser_charge_s.play()
+            line_effects.append([[[left, 0], [left, screen.get_height()]], center_line, (190, 40, 100), 20, 30])
+            line_effects.append([[[right, 0], [right, screen.get_height()]], center_line, (190, 40, 100), 20, 30])
+        laser[2] += 1
+        if laser[2] > 180:
+            lasers.pop(i)
+            laser_explode_s.play()
+            if (player_pos[0] > left) and (player_pos[0] < right):
+                if player_pos[0] > laser[0]:
+                    ball_speedx += 4
+                    ball_speedy += 4
+                    # player_velocity[0] += 4
+                else:
+                    ball_speedy -= 4
+                    ball_speedx -= 4
+                    # player_velocity[0] -= 4
+                for i in range(30):
+                    # sparks.append([player_pos, random.randint(0, 359), random.randint(7, 10) / 10 * 3, 9 * random.randint(5, 10) / 10, (170, 170, 170)])
+                    a = random.randint(0, 359)
+                    s = random.randint(20, 50) / 10
+                    x_p = math.cos(math.radians(a)) * s
+                    y_p = math.sin(math.radians(a)) * s
+                    particles.append(e.particle(player_pos, 'p', [x_p, y_p], 0.1, random.randint(0, 20) / 10, (170, 170, 170)))
+                    screen_shake = 8
+            for i in range(300):
+                if random.randint(1, 2) == 1:
+                    pos_x = left
+                    vel = [4 + random.randint(0, 20) / 10, random.randint(0, 10) / 10 - 3]
+                else:
+                    pos_x = right
+                    vel = [-(4 + random.randint(0, 20) / 10), random.randint(0, 10) / 10 - 3]
+                pos_y = random.randint(0, screen.get_height() + 30) + scroll - 30
+                particles.append(e.particle([pos_x, pos_y], 'p', vel, 0.2, random.randint(0, 20) / 10, (160, 40, 80)))
+
+
 
     if current_line:
         normal = collision.calculate_normal(current_line[0], current_line[1])
@@ -108,7 +163,6 @@ while True:
         # length from last_point to mx, my
         #((mx - last_point[0])**2 + (my - last_point[1])**2)
         line_length = math.sqrt(((mx - last_point[0])**2 + (my - last_point[1])**2))
-        print(line_length)
         
         pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
 
