@@ -48,6 +48,10 @@ font = pygame.font.Font('data/fonts/Pixeltype.ttf',50)
 e.load_particle_images('data/images/particles')
 e.set_global_colorkey((0, 0, 0))
 
+# sounds
+bounce_s = pygame.mixer.Sound('data/jump.wav')
+bounce_s.set_volume(0.7)
+
 particles = []
 circle_effects = []
 player_pos = [screen.get_width() // 2, screen.get_height() // 2]
@@ -122,8 +126,10 @@ while True:
             print("Collision detected!")
             # Handle collision here (stop movement, bounce, etc.)
             ball_speedx, ball_speedy = -ball_speedx, -ball_speedy  # Example: simple bounce
+            bounce_s.play()
 
     if buttondown:
+        # 
         pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
 
     screen.blit(text_surface, (10, 10))
