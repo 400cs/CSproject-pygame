@@ -87,9 +87,11 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not buttondown:
                 last_point = [mx, my]
-            else:
-                current_line = (last_point, [mx, my])
             buttondown = not buttondown
+        if event.type == pygame.MOUSEBUTTONUP:
+            current_line = (last_point, [mx, my])
+            buttondown = not buttondown
+        
 
     if current_line:
         normal = collision.calculate_normal(current_line[0], current_line[1])
