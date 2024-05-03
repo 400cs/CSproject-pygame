@@ -47,6 +47,17 @@ circle_effects = []
 lasers = []
 line_effects = []
 
+def clamp_line(start, end, max_length):
+    """ Adjusts 'end' point so that the distance to 'start' does not exceed 'max_length'. """
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    distance = math.sqrt(dx**2 + dy**2)
+    if distance > max_length:
+        theta = math.atan2(dy, dx)
+        end[0] = start[0] + max_length * math.cos(theta)
+        end[1] = start[1] + max_length * math.cos(theta)
+    return end
+
 while True:
     mx, my = pygame.mouse.get_pos()
 
@@ -163,8 +174,13 @@ while True:
         # length from last_point to mx, my
         #((mx - last_point[0])**2 + (my - last_point[1])**2)
         line_length = math.sqrt(((mx - last_point[0])**2 + (my - last_point[1])**2))
-        
-        pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
+        MAX_LINE_LENGTH = 600
+        if line_length > MAX_LINE_LENGTH:
+            max_point = clamp_line(last_point, [mx, my], MAX_LINE_LENGTH)
+            print(max_point)
+            pygame.draw.line(screen, (90, 140, 170), last_point, max_point)
+        else:
+            pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
 
     screen.blit(text_surface, (10, 10))
 
