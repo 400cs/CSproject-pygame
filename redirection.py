@@ -1,37 +1,6 @@
 import pygame, sys, random
 import data.entities as e
-import data.text as text
-import numpy as np
-
-def point_line_distance(point, start, end):
-    """Calculate the minimum distance between a point and a line segment."""
-    # Convert points to numpy arrays for vector operations
-    point = np.array(point)
-    start = np.array(start)
-    end = np.array(end)
-
-    # Vector from start to point and start to end
-    line_vec = end - start
-    point_vec = point - start
-
-    # Calculate the projection scalar of point_vec onto line_vec
-    line_len = np.linalg.norm(line_vec)
-    line_unitvec = line_vec / line_len
-    proj_length = np.dot(point_vec, line_unitvec)
-
-    # Check if the projection length is within the line segment
-    if proj_length < 0:
-        # Before start point
-        closest_point = start
-    elif proj_length > line_len:
-        # After end point
-        closest_point = end
-    else:
-        # Projection point on the line
-        closest_point = start + proj_length * line_unitvec
-
-    # Distance from the point to the closest point on the line segment
-    return np.linalg.norm(point - closest_point)
+import data.collision as collision
 
 pygame.init()
 
@@ -82,7 +51,9 @@ while True:
     screen.fill(bg_color)
     particles.append(e.particle(player_pos, 'p', [random.randint(0, 20) / 40 - 0.25, random.randint(0, 10) / 15 - 1], 0.2, random.randint(0, 30) / 10, player_color))
 
-    text_surface = font.render("Score: " + str(game_score), False, 'White')
+    if not end_game:
+        text_surface = font.render("Score: " + str(game_score), False, 'White')
+
     current_time = pygame.time.get_ticks()
     game_score = (current_time - start_time) // 1000
 
@@ -116,12 +87,13 @@ while True:
             buttondown = not buttondown
 
     if current_line:
+        normal = collision.calculate_normal(current_line[0], current_line[1])
         pygame.draw.line(screen, (255, 255, 255), current_line[0], current_line[1], 5)
-        distance = point_line_distance(player_pos, current_line[0], current_line[1])
+        distance = collision.point_line_distance(player_pos, current_line[0], current_line[1])
         if distance <= player_radius:
-            print("Collision detected!")
-            # Handle collision here (stop movement, bounce, etc.)
-            ball_speedx, ball_speedy = -ball_speedx, -ball_speedy  # Example: simple bounce
+            ball_velocity = [ball_speedx, ball_speedy]
+            reflected_velocity = collision.reflect(ball_velocity, normal)
+            ball_speedx, ball_speedy = reflected_velocity[0], reflected_velocity[1]
 
     if buttondown:
         pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
@@ -130,4 +102,3 @@ while True:
 
     pygame.display.flip()
     clock.tick(60)
-
