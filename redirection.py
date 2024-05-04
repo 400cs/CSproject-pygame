@@ -39,6 +39,7 @@ scroll = 0
 game_score = 0
 end_game = False
 buttondown = False
+has_collide = False
 last_speed_increase_time = start_time
 player_radius = 10
 
@@ -46,7 +47,6 @@ particles = []
 circle_effects = []
 lasers = []
 line_effects = []
-has_collide = False
 
 def clamp_line(start, end, max_length):
     """ Adjusts 'end' point so that the distance to 'start' does not exceed 'max_length'. """
@@ -80,6 +80,7 @@ while True:
     current_time = pygame.time.get_ticks()
     game_score = (current_time - start_time) // 1000
 
+    # ball speed scaling
     if (current_time - last_speed_increase_time) > 10000:  
         ball_speedx *= 1.1  
         ball_speedy *= 1.1
@@ -105,12 +106,14 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not buttondown:
                 last_point = [mx, my]
+                pygame.draw.circle(screen, (255, 255, 255), last_point, 7, 2)
             buttondown = not buttondown
         if event.type == pygame.MOUSEBUTTONUP:
             current_line = (last_point, [mx, my])
             buttondown = not buttondown
-            has_collide = True
+            has_collide = False
     
+    # Lasers
     if game_score > 10:
         if random.randint(1, 300 * (1 + len(lasers) * 2)) == 1:
             lasers.append([random.randint(0, screen.get_width()), random.randint(90, 150), 20])
@@ -157,10 +160,12 @@ while True:
                 particles.append(e.particle([pos_x, pos_y], 'p', vel, 0.2, random.randint(0, 20) / 10, (160, 40, 80)))
     
 
-    if has_collide:
+    if not has_collide:
         if current_line:
             normal = collision.calculate_normal(current_line[0], current_line[1])
             pygame.draw.line(screen, (255, 255, 255), current_line[0], current_line[1], 5)
+            pygame.draw.circle(screen, (255, 255, 255), current_line[0], 7, 2)
+            pygame.draw.circle(screen, (255, 255, 255), current_line[1], 7, 2)
             distance = collision.point_line_distance(player_pos, current_line[0], current_line[1])
             if distance <= player_radius:
                 bounce_s.play()
@@ -168,13 +173,10 @@ while True:
                 reflected_velocity = collision.reflect(ball_velocity, normal)
                 ball_speedx, ball_speedy = reflected_velocity[0], reflected_velocity[1]
                 # remove line
-                has_collide = False
+                has_collide = True
 
 
     if buttondown:
-        # line needs to have a limit
-        # length from last_point to mx, my
-        #((mx - last_point[0])**2 + (my - last_point[1])**2)
         line_length = math.sqrt(((mx - last_point[0])**2 + (my - last_point[1])**2))
         MAX_LINE_LENGTH = 600
         # if line_length > MAX_LINE_LENGTH:
