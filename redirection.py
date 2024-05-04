@@ -46,6 +46,7 @@ particles = []
 circle_effects = []
 lasers = []
 line_effects = []
+has_collide = False
 
 def clamp_line(start, end, max_length):
     """ Adjusts 'end' point so that the distance to 'start' does not exceed 'max_length'. """
@@ -108,6 +109,7 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP:
             current_line = (last_point, [mx, my])
             buttondown = not buttondown
+            has_collide = True
     
     if game_score > 10:
         if random.randint(1, 300 * (1 + len(lasers) * 2)) == 1:
@@ -155,17 +157,19 @@ while True:
                 particles.append(e.particle([pos_x, pos_y], 'p', vel, 0.2, random.randint(0, 20) / 10, (160, 40, 80)))
     
 
+    if has_collide:
+        if current_line:
+            normal = collision.calculate_normal(current_line[0], current_line[1])
+            pygame.draw.line(screen, (255, 255, 255), current_line[0], current_line[1], 5)
+            distance = collision.point_line_distance(player_pos, current_line[0], current_line[1])
+            if distance <= player_radius:
+                bounce_s.play()
+                ball_velocity = [ball_speedx, ball_speedy]
+                reflected_velocity = collision.reflect(ball_velocity, normal)
+                ball_speedx, ball_speedy = reflected_velocity[0], reflected_velocity[1]
+                # remove line
+                has_collide = False
 
-
-    if current_line:
-        normal = collision.calculate_normal(current_line[0], current_line[1])
-        pygame.draw.line(screen, (255, 255, 255), current_line[0], current_line[1], 5)
-        distance = collision.point_line_distance(player_pos, current_line[0], current_line[1])
-        if distance <= player_radius:
-            bounce_s.play()
-            ball_velocity = [ball_speedx, ball_speedy]
-            reflected_velocity = collision.reflect(ball_velocity, normal)
-            ball_speedx, ball_speedy = reflected_velocity[0], reflected_velocity[1]
 
     if buttondown:
         # line needs to have a limit
