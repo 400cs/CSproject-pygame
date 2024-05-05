@@ -79,6 +79,9 @@ def update_lines():
         if line[2] <= 0:
             lines.remove(line)
 
+pygame.mixer.music.load('data/sfx/KirbyEpicYarn.mp3')
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.2)
 
 while True:
 
