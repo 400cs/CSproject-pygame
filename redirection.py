@@ -94,7 +94,7 @@ while True:
         if player_pos[0] > SCREEN_WIDTH or player_pos[0] < 0 or player_pos[1] > SCREEN_HEIGHT or player_pos[1] < 0:
             if end_game == False:
                 death_s.play()
-                end_text_surface = font.render('press R', False, 'White')
+                end_text_surface = font.render('Press R', False, 'White')
             end_game = True
 
 
@@ -214,6 +214,7 @@ while True:
                     start_time = pygame.time.get_ticks()
                     end_game = False
                     particles = []
+                    current_line = None
                     last_point = [screen.get_width() // 2, screen.get_height()]
                     scroll = 0
                     player_pos = [screen.get_width() // 2, screen.get_height() // 2]
