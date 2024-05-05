@@ -9,7 +9,7 @@ clock = pygame.time.Clock()
 start_time = pygame.time.get_ticks()
 
 SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 960
+SCREEN_HEIGHT = 750
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("redirection")
@@ -48,12 +48,38 @@ end_game = False
 buttondown = False
 has_collide = False
 last_speed_increase_time = start_time
+last_line_placement_time = start_time
 player_radius = 10
+line_lifetime = 1000
 
 particles = []
 circle_effects = []
 lasers = []
 line_effects = []
+lines = []
+
+def add_line():
+    start_point = [random.randint(100, SCREEN_WIDTH - 100), random.randint(100, SCREEN_HEIGHT - 100)]
+    end_point = [start_point[0] + random.randint(-100, 100), start_point[1] + random.randint(-100, 100)]
+    lines.append([start_point, end_point, line_lifetime])
+
+def update_lines():
+    global ball_speedx, ball_speedy
+    for line in lines[:]:
+        normal = collision.calculate_normal(line[0], line[1])
+        pygame.draw.line(screen, (204, 27, 47), line[0], line[1], 5)
+        pygame.draw.circle(screen, (204, 27, 47), line[0], 7, 2)
+        pygame.draw.circle(screen, (204, 27, 47), line[1], 7, 2)
+        distance = collision.point_line_distance(player_pos, line[0], line[1])
+        if distance <= player_radius:
+            bounce_s.play()
+            ball_velocity = [ball_speedx, ball_speedy]
+            reflected_velocity = collision.reflect(ball_velocity, normal)
+            ball_speedx, ball_speedy = reflected_velocity[0], reflected_velocity[1]
+            lines.remove(line)
+        line[2] -= 1
+        if line[2] <= 0:
+            lines.remove(line)
 
 
 while True:
@@ -78,13 +104,16 @@ while True:
     current_time = pygame.time.get_ticks()
     game_score = (current_time - start_time) // 1000
 
+    if (current_time - last_line_placement_time) > 5000:
+        add_line()
+        last_line_placement_time = current_time
+
     # ball speed scaling
     if (current_time - last_speed_increase_time) > 10000:  
         ball_speedx *= 1.1  
         ball_speedy *= 1.1
         last_speed_increase_time = current_time
-
-
+    
     for i, particle in sorted(enumerate(particles), reverse=True):
         alive = particle.update(1)
         if not alive:
@@ -169,6 +198,7 @@ while True:
                 pos_y = random.randint(0, screen.get_height() + 30) + scroll - 30
                 particles.append(e.particle([pos_x, pos_y], 'p', vel, 0.2, random.randint(0, 20) / 10, (160, 40, 80)))
     
+    update_lines()
 
     if not has_collide:
         if current_line:
@@ -187,6 +217,7 @@ while True:
 
 
     if buttondown:
+        pygame.draw.circle(screen, (255, 255, 255), last_point, 7, 2)
         line_length = math.sqrt(((mx - last_point[0])**2 + (my - last_point[1])**2))
         MAX_LINE_LENGTH = 600
         # if line_length > MAX_LINE_LENGTH:
@@ -195,6 +226,7 @@ while True:
         #     pygame.draw.line(screen, (90, 140, 170), last_point, max_point)
         # else:
         pygame.draw.line(screen, (90, 140, 170), last_point, [mx, my])
+        
 
     screen.blit(text_surface, (10, 10))
 
