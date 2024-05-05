@@ -14,6 +14,9 @@ SCREEN_HEIGHT = 960
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("redirection")
 
+gui_display = pygame.Surface((275, 400))
+gui_display.set_colorkey((0, 0, 0))
+
 font = pygame.font.Font('data/fonts/Pixeltype.ttf',50)
 e.load_particle_images('data/images/particles')
 e.set_global_colorkey((0, 0, 0))
@@ -22,8 +25,12 @@ e.set_global_colorkey((0, 0, 0))
 bounce_s = pygame.mixer.Sound('data/sfx/jump.wav')
 laser_charge_s = pygame.mixer.Sound('data/sfx/laser_charge.wav')
 laser_explode_s = pygame.mixer.Sound('data/sfx/laser_explode.wav')
+restart_s = pygame.mixer.Sound('data/sfx/collect.mp3')
+death_s = pygame.mixer.Sound('data/sfx/roblox-death-sound-sound-effect.mp3')
 bounce_s.set_volume(0.7)
 laser_charge_s.set_volume(0.05)
+restart_s.set_volume(0.7)
+death_s.set_volume(0.5)
 
 player_pos = [screen.get_width() // 2, screen.get_height() // 2]
 player_color = (90, 210, 255)
@@ -48,16 +55,6 @@ circle_effects = []
 lasers = []
 line_effects = []
 
-def clamp_line(start, end, max_length):
-    """ Adjusts 'end' point so that the distance to 'start' does not exceed 'max_length'. """
-    dx = end[0] - start[0]
-    dy = end[1] - start[1]
-    distance = math.sqrt(dx**2 + dy**2)
-    if distance > max_length:
-        theta = math.atan2(dy, dx)
-        end[0] = start[0] + max_length * math.cos(theta)
-        end[1] = start[1] + max_length * math.cos(theta)
-    return end
 
 while True:
     mx, my = pygame.mouse.get_pos()
@@ -65,10 +62,11 @@ while True:
     player_pos[0] += ball_speedx
     player_pos[1] += ball_speedy
 
-    if player_pos[0] > SCREEN_WIDTH or player_pos[0] < 0:
-        ball_speedx = -ball_speedx
-    if player_pos[1] > SCREEN_HEIGHT or player_pos[1] < 0:
-        ball_speedy = -ball_speedy
+    if player_pos[0] > SCREEN_WIDTH or player_pos[0] < 0 or player_pos[1] > SCREEN_HEIGHT or player_pos[1] < 0:
+        if end_game == False:
+            death_s.play()
+            font.render('press R', False, 'White',)
+        end_game = True
 
 
     screen.fill(bg_color)
@@ -103,15 +101,27 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+            if event.key == K_r:
+                if end_game:
+                    restart_s.play()
+                    lasers = []
+                    game_score = 0
+                    end_game = False
+                    particles = []
+                    last_point = [screen.get_width() // 2, screen.get_height()]
+                    scroll = 0
+                    player_pos = [screen.get_width() // 2, screen.get_height() // 2]
+                    ball_speedx = 2
+                    ball_speedy = 2
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not buttondown:
                 last_point = [mx, my]
-                pygame.draw.circle(screen, (255, 255, 255), last_point, 7, 2)
             buttondown = not buttondown
         if event.type == pygame.MOUSEBUTTONUP:
             current_line = (last_point, [mx, my])
             buttondown = not buttondown
             has_collide = False
+        
     
     # Lasers
     if game_score > 10:
