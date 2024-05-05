@@ -33,8 +33,9 @@ player_pos = [screen.get_width() // 2, screen.get_height() // 2]
 player_color = (90, 210, 255)
 bg_color = (13, 20, 33)
 
-ball_speedx = 2
-ball_speedy = 2
+numbers = [-2,2]
+ball_speedx = random.choice(numbers)
+ball_speedy = random.choice(numbers)
 
 last_point = [0,0]
 current_line = None
@@ -138,8 +139,8 @@ while True:
                     last_point = [screen.get_width() // 2, screen.get_height()]
                     scroll = 0
                     player_pos = [screen.get_width() // 2, screen.get_height() // 2]
-                    ball_speedx = 2
-                    ball_speedy = 2
+                    ball_speedx = random.choice(numbers)
+                    ball_speedy = random.choice(numbers)
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not buttondown:
                 last_point = [mx, my]
