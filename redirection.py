@@ -14,9 +14,6 @@ SCREEN_HEIGHT = 750
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("redirection")
 
-gui_display = pygame.Surface((275, 400))
-gui_display.set_colorkey((0, 0, 0))
-
 font = pygame.font.Font('data/fonts/Pixeltype.ttf',50)
 e.load_particle_images('data/images/particles')
 e.set_global_colorkey((0, 0, 0))
@@ -91,7 +88,7 @@ while True:
     if player_pos[0] > SCREEN_WIDTH or player_pos[0] < 0 or player_pos[1] > SCREEN_HEIGHT or player_pos[1] < 0:
         if end_game == False:
             death_s.play()
-            font.render('press R', False, 'White',)
+            end_text_surface = font.render('press R', False, 'White')
         end_game = True
 
 
@@ -129,11 +126,12 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
-                sys.exit()
-            if event.key == K_r:
+                sys.exit()    
+            if event.key == pygame.K_r:
                 if end_game:
                     restart_s.play()
                     lasers = []
+                    lines = []
                     game_score = 0
                     end_game = False
                     particles = []
@@ -229,6 +227,8 @@ while True:
         
 
     screen.blit(text_surface, (10, 10))
+    if end_game:
+        screen.blit(end_text_surface, (screen.get_width() // 2 - 50, screen.get_height() // 2))
 
     pygame.display.flip()
     clock.tick(60)
