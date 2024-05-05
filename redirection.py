@@ -134,6 +134,8 @@ while True:
                     lasers = []
                     lines = []
                     game_score = 0
+                    current_time = pygame.time.get_ticks()
+                    start_time = pygame.time.get_ticks()
                     end_game = False
                     particles = []
                     last_point = [screen.get_width() // 2, screen.get_height()]
