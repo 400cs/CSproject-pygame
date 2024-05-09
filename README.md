@@ -1,7 +1,7 @@
 How to run - 
 Dependencies: numpy, pygame
-pip install pygame
-pip install numpy 
+ - pip install pygame
+ - pip install numpy 
 to run: python redirection.py 
 
 
